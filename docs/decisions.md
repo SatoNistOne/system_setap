@@ -1,7 +1,7 @@
 # Golden setup — принятые решения
 
 Единственный источник правды по решениям (ревизия 2026-10-11/12, все пункты
-подтверждены заново). Только «что» и коротко «почему» — без кода и истории
+подтверждены заново; сессия по Niri — 2026-10-12, §6а). Только «что» и коротко «почему» — без кода и истории
 правок. Код — в репозитории; открытые вопросы и следующие шаги — `todo.md`;
 проверки на живой системе — `tests.md`.
 
@@ -48,7 +48,7 @@
 | Композитор | Niri | Скроллируемый тайлинг, Wayland |
 | Оболочка | Noctalia v5 | Бар, уведомления, центр управления, lock, idle; обновлять осознанно (changelog, откат снапшотом) |
 | Свой шелл | Позже, отдельным проектом, на Quickshell | |
-| Вход | Plymouth (пароль диска) → автологин greetd (`initial_session`); SDDM убран | Один пароль — пароль диска |
+| Вход | Plymouth (пароль диска) → автологин greetd (`initial_session` = `niri-session`); SDDM убран | Один пароль — пароль диска; `niri-session` поднимает `graphical-session.target` для фоновых служб |
 | Связка ключей | Пустая связка по умолчанию, как в Omarchy; PAM-правок для keyring нет | Защита — LUKS; при автологине пароля входа нет |
 | SSH-агент | gcr-ssh-agent | Пароль ключа хранится в связке |
 
@@ -157,8 +157,8 @@
   дням и моделям из локальных логов `~/.claude/projects` (как в Omarchy,
   можно взять их код, MIT).
 - **Темы как в Omarchy:** тема = палитра `colors.toml` + обои + иконки;
-  шаблоны для kitty, fuzzel, Noctalia, btop, VS Code, qt6ct, фона Plymouth,
-  Satty; переключение одной командой и пунктом меню с превью. GTK —
+  шаблоны для kitty, fuzzel, Noctalia, Niri (`theme.kdl`: рамка, фон
+  overview), btop, VS Code, qt6ct, фона Plymouth, Satty; переключение одной командой и пунктом меню с превью. GTK —
   Adwaita тёмная/светлая + иконки. Для старта 3–4 палитры из Omarchy (MIT), остальные добавляются
   копированием папки; по умолчанию **Vantablack**.
 - **Экран загрузки и скринсейвер в стиле Omarchy:** тема Plymouth Omarchy
@@ -172,14 +172,60 @@
   окнах; звук обоев выключен; на каждый монитор свои.
 - **Шрифты:** Noto (+cjk, emoji, extra) для интерфейса, JetBrainsMono Nerd
   Font для терминала и кода.
-- **Niri:** раскладки us+ru, переключение `Alt+Shift`; тачпад — касание,
-  натуральная прокрутка, выключение при наборе; небольшие отступы, тонкая
-  рамка активного окна, без скруглений. Сочетания клавиш — составить с нуля
-  (см. `todo.md`). Уведомления Steam — сбоку справа (готовое правило окна).
-- **Скриншоты:** встроенные в Niri (`Print` — область/окно/экран в буфер и
-  `~/Pictures/Screenshots`); `Shift+Print` — сразу в Satty для пометок.
+- **Niri** — подробно в §6а.
+- **Скриншоты:** одна клавиша `Print` → меню «Захват» (раздел общего меню):
+  Область (первая: `Print` → `Enter`) / Экран / Окно / Область → Satty /
+  Текст со скрина (normcap). Снимки — встроенными командами Niri, в буфер и
+  `~/Pictures/Screenshots`. Почему меню: окно скриншота Niri умеет только
+  область, режимов окна/экрана в нём нет.
 - **Буфер обмена:** cliphist (переживает перезагрузку), 750 записей,
   старше 7 дней удаляются; `Super+V` и пункт меню ⚠️ пароли не сохраняются.
+
+## 6а. Niri (`config.kdl`)
+
+- **Версия:** Niri 26.04. Конфиг проверяется `niri validate`.
+- **Файлы:** `config.kdl` только подключает `cfg/` (input, layout, misc,
+  autostart, binds, rules); дальше необязательные `theme.kdl` (пишет
+  переключатель тем), `outputs.kdl` (мониторы) и `local.kdl` (личные правки) —
+  только на машине, в репозиторий не попадают.
+- **Ввод:** us+ru, `Alt+Shift`; тачпад — касание, натуральная прокрутка,
+  выключение при наборе; фокус за мышью без прокрутки ленты; курсор прыгает
+  к окну при переходе клавишами; курсор прячется при наборе.
+- **Вид:** отступы 8 px, рамка 2 px (цвета из темы), без «кольца» фокуса,
+  без скруглений; новое окно — ½ экрана, ширины по кругу ⅓ ½ ⅔; приложения
+  без своих заголовков (`prefer-no-csd`).
+- **Столы** динамические. **Overview** — `Super+O` и 4 пальца вверх; горячий
+  угол выключен; живые обои видны и в overview.
+- **Анимации** — по умолчанию Niri; шейдеры окон — подобрать вживую ⚠️.
+- **Блюр** (xray, дёшево): панели и уведомления Noctalia, меню fuzzel; бар —
+  сплошной, без блюра.
+- **Жесты** — встроенные: 3 пальца вверх/вниз — столы, влево/вправо —
+  колонки, 4 пальца — overview.
+- **Автозапуск:** в `config.kdl` — Noctalia, Telegram в трей, FlClashX (если
+  установлен) ⚠️. Фоновое (cliphist, обои, EasyEffects, usbguard-notifier,
+  Syncthing) — пользовательские службы systemd от `graphical-session.target`.
+- **Alt+Tab** — переключатель последних окон (только вперёд: `Alt+Shift`
+  занят раскладкой).
+
+**Сочетания клавиш.** Грамматика: `Super` + клавиша — действие;
+`+Shift` — переместить; `+Ctrl` — мониторы; `+Alt` — размер и инструменты;
+`Super+Shift+буква` — приложения.
+
+| Группа | Сочетания |
+|---|---|
+| Меню | `Super+Space` меню, `Super+Escape` меню «Система», `Super+K` все сочетания (поиск, fuzzel), `Super+Shift+K` подсказка Niri |
+| Приложения | `Super+Return` kitty, `Super+B` Firefox, `Super+E` Thunar, `Super+Shift+C` VS Code, `Ctrl+Shift+Escape` btop |
+| Окна | `Super+Q` закрыть, `Super+F` полный экран, `Super+M` колонка во всю ширину, `Super+R` / `+Shift` ширины по кругу, `Super+W` вкладки, `Super+[ ]` в колонку / из неё, `Super+T` плавающее, `Super+Shift+T` фокус плавающие ↔ лента |
+| Фокус / перемещение | `Super+стрелки` фокус, `Super+Shift+стрелки` переставить; `Super+Home/End` первая/последняя колонка (`+Shift` — переставить туда) |
+| Размер | `Super+- =` ширина, `Super+Alt+- =` высота, `Super+Alt+стрелки` ширина/высота; мышью — за край или `Super`+правая кнопка |
+| Столы | `Super+1…9`, `Super+Shift+1…9` колонку на стол, `Super+Tab` прошлый стол, `Super+колёсико` столы, `Super+Shift+колёсико` колонки |
+| Мониторы | `Super+Ctrl+стрелки` фокус, `Super+Ctrl+Shift+стрелки` колонку туда |
+| Система | `Super+Alt+L` блокировка, `Super+V` буфер, `Super+Alt+K` экранная клавиатура, `Super+Shift+Escape` вернуть клавиши из игры, `Ctrl+Alt+Del` выйти из Niri |
+| Демонстрация | `Super+Alt+W` окно, `Super+Alt+M` монитор, `Super+Alt+C` скрыть («подвижная цель» в Discord) |
+| Переключение | `Alt+Tab` последние окна |
+| Скриншоты | `Print` — меню «Захват» |
+| Noctalia | своих клавиш нет: центр управления — клик по бару, настройки — пункт меню |
+| Медиа | звук, микрофон, медиа, яркость — через Noctalia (с индикатором), работают и на экране блокировки |
 
 ## 7. Терминал и командная строка
 
@@ -223,25 +269,27 @@
 ## 9. Приложения
 
 **Core:** Firefox (`user.js`, автоподкладка в любой профиль), Chromium, Tor
-Browser (на всякий), Thunar + плагины + архиватор, imv, mpv + uosc, Okular,
+Browser (на всякий), Thunar + плагины + file-roller, imv, mpv + uosc, Okular,
 VS Code, kitty, Telegram, Vesktop, Spotify, Steam, Heroic, ProtonPlus,
 gamemode, MangoHud, gamescope (по умолчанию не используется), Flatpak +
 Flatseal + Bazaar, DBeaver, normcap, GParted, wvkbd, Satty, EasyEffects,
-RustDesk, Syncthing, CUPS, Bitwarden.
+RustDesk, Syncthing, CUPS, Bitwarden, Obsidian.
 
 **Optional (выбор при установке):** OnlyOffice, Thunderbird, qBittorrent,
-Obsidian, Anki, OBS Studio, FlClash, Wireshark.
+Anki, OBS Studio, FlClashX (вместо FlClash) ⚠️ пакет, Wireshark.
 
-**Пароли:** Bitwarden (core); свой сервер Vaultwarden — решить позже.
+**Пароли:** Bitwarden (core), хранилище — свой Vaultwarden на сервере
+(нужен HTTPS: домен + сертификат); до этого — облако Bitwarden.
 
 **[личное]:** Exiled Exchange 2 (AppImage через X11-обёртку), виджет
 лимитов Claude, числа ryzenadj.
 
 **Убрано:** SDDM, Podman, VSCodium, Neovim, KDE Connect, LocalSend,
-Bitwarden, Cryptomator, KiCad, IntelliJ, PostgreSQL/MariaDB как службы,
+Cryptomator, KiCad, IntelliJ, PostgreSQL/MariaDB как службы,
 Bruno, pacsea, pamac, Kanshi, tzupdate, blueman, nm-connection-editor,
 grim/slurp/swappy, waypaper, cups-pdf, gnome-firmware, proton-cachyos,
-cargo-watch, direnv, Colloid/Nordic/Catppuccin-GTK, kvantum.
+cargo-watch, direnv, Colloid/Nordic/Catppuccin-GTK, kvantum, FlClash
+(заменён на FlClashX).
 
 **Детали:**
 - **Игры:** официальный Proton (ProtonPlus для проблемных игр);
@@ -265,11 +313,12 @@ cargo-watch, direnv, Colloid/Nordic/Catppuccin-GTK, kvantum.
   нужное → ставится. Без уведомлений и слежения; удаления не
   синхронизируются.
 - **Сервер** (после установки, рядом с VPN): RustDesk (hbbs/hbbr), узел
-  Syncthing, точка входа SSH-туннелей. Бэкап на сервер не делаем.
-- **Бэкапы:** снапшоты + копия в Syncthing; бэкап вне диска — см.
-  `todo.md` (решается); с HDD — роль «бэкап» в `golden-disks` (btrbk).
-  Диск сервера (40 ГБ на всё: система, VPN, RustDesk, Syncthing) не
-  забивать.
+  Syncthing, точка входа SSH-туннелей, Vaultwarden. Бэкап на сервер не
+  делаем.
+- **Бэкапы:** снапшоты + копия в Syncthing. Бэкап вне диска — ждёт
+  внешний HDD (роль «бэкап» в `golden-disks`, btrbk) или второй сервер;
+  облако не используем. Диск текущего сервера (40 ГБ на всё: система, VPN,
+  RustDesk, Syncthing, Vaultwarden) не забивать.
 - **Заголовок LUKS:** после установки копия на аварийную флешку (скрипт
   просит вставить флешку); пункт меню «Сохранить заголовок LUKS» —
   повторять после смены пароля, старые копии удалять.

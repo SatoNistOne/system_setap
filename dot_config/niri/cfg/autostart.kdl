@@ -1,0 +1,16 @@
+// Автозапуск
+//
+// Фоновые программы — пользовательские службы systemd (сами
+// перезапускаются при падении, логи в journalctl, видны в golden-doctor):
+// cliphist, живые обои, EasyEffects, usbguard-notifier, Syncthing.
+// Они стартуют с graphical-session.target — поэтому Niri запускается через
+// niri-session (greetd: initial_session = niri-session).
+// XWayland (xwayland-satellite) Niri поднимает сам.
+
+spawn-at-startup "noctalia"
+
+// Приложения в трей при входе.
+spawn-at-startup "Telegram" "-startintray"
+
+// FlClashX — optional-пакет: запускается, только если установлен.
+spawn-sh-at-startup "command -v flclashx >/dev/null && exec flclashx --minimized"

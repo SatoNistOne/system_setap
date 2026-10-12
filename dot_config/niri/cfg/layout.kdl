@@ -1,0 +1,42 @@
+// Раскладка окон: отступы, рамка, ширины колонок
+
+layout {
+    gaps 8
+
+    // Активная колонка не центрируется сама — лента едет только по делу.
+    center-focused-column "never"
+
+    // Прозрачный фон столов — под ними видны живые обои.
+    background-color "transparent"
+
+    // Super+R перебирает эти ширины по кругу.
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+    }
+
+    // Новое окно — половина экрана.
+    default-column-width { proportion 0.5; }
+
+    // Подсветка активного окна — только тонкая рамка, без «кольца».
+    focus-ring {
+        off
+    }
+
+    border {
+        width 2
+        // Vantablack по умолчанию; переключатель тем перекрывает в theme.kdl.
+        active-color "#eaeaea"
+        inactive-color "#2a2a2a"
+        urgent-color "#ff5555"
+    }
+
+    // Вкладки в колонке (Super+W) — полоска слева, плоская.
+    tab-indicator {
+        place-within-column
+        width 4
+        gap 4
+        corner-radius 0
+    }
+}

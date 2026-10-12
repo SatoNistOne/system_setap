@@ -1,0 +1,6 @@
+// Пример outputs.kdl (только на этой машине). Имена: niri msg outputs
+output "eDP-1" {
+    mode "2560x1600@165"
+    scale 1.25
+    position x=0 y=0
+}

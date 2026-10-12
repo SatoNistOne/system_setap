@@ -1,0 +1,22 @@
+// ~/.config/niri/config.kdl — golden setup
+// Главный файл только подключает части. Порядок важен: что ниже — то
+// перекрывает то, что выше (поэтому личное и мониторы — в самом конце).
+// Документация: https://github.com/niri-wm/niri/wiki
+// Проверка после правки: niri validate
+
+include "cfg/input.kdl"
+include "cfg/layout.kdl"
+include "cfg/misc.kdl"
+include "cfg/autostart.kdl"
+include "cfg/binds.kdl"
+include "cfg/rules.kdl"
+
+// Цвета рамки и фона overview — пишет переключатель тем (golden-theme).
+// Нет файла — остаются значения Vantablack из cfg/layout.kdl и cfg/misc.kdl.
+include optional=true "theme.kdl"
+
+// Только на этой машине, в репозиторий не попадают:
+//   outputs.kdl — мониторы (имя, режим, масштаб, расположение)
+//   local.kdl   — личные правки поверх всего (клавиши, правила, автозапуск)
+include optional=true "outputs.kdl"
+include optional=true "local.kdl"

@@ -1,0 +1,139 @@
+// Сочетания клавиш
+//
+// Грамматика (Mod = Super):
+//   Mod + клавиша         — действие / переход
+//   + Shift               — переместить (окно, колонку)
+//   + Ctrl                — мониторы
+//   + Alt                 — размер окна и системные инструменты
+//   Mod+Shift+буква       — приложения
+//
+// hotkey-overlay-title — подпись во встроенной подсказке Niri (Super+Shift+K).
+// Полный список с поиском — Super+K (собирается из этого файла).
+
+binds {
+    // ─── Меню и подсказки ───
+    Mod+Space           hotkey-overlay-title="Меню" { spawn "golden-menu"; }
+    Mod+Escape          hotkey-overlay-title="Меню: система (сон, выключение)" { spawn "golden-menu" "system"; }
+    Mod+K               hotkey-overlay-title="Все сочетания (поиск)" { spawn "golden-keybinds"; }
+    Mod+Shift+K         { show-hotkey-overlay; }
+
+    // ─── Приложения ───
+    Mod+Return          hotkey-overlay-title="Терминал" { spawn "kitty"; }
+    Mod+B               hotkey-overlay-title="Браузер" { spawn "firefox"; }
+    Mod+E               hotkey-overlay-title="Файлы" { spawn "thunar"; }
+    Mod+Shift+C         hotkey-overlay-title="VS Code" { spawn "code"; }
+    Ctrl+Shift+Escape   hotkey-overlay-title="btop" { spawn "kitty" "-e" "btop"; }
+
+    // ─── Окна ───
+    Mod+Q               hotkey-overlay-title="Закрыть окно" { close-window; }
+    Mod+F               hotkey-overlay-title="Полный экран" { fullscreen-window; }
+    Mod+M               hotkey-overlay-title="Колонка на всю ширину" { maximize-column; }
+    Mod+R               hotkey-overlay-title="Ширина ⅓ → ½ → ⅔" { switch-preset-column-width; }
+    Mod+Shift+R         { switch-preset-column-width-back; }
+    Mod+W               hotkey-overlay-title="Вкладки в колонке" { toggle-column-tabbed-display; }
+    Mod+BracketLeft     hotkey-overlay-title="Окно в колонку слева / из неё" { consume-or-expel-window-left; }
+    Mod+BracketRight    hotkey-overlay-title="Окно в колонку справа / из неё" { consume-or-expel-window-right; }
+    Mod+T               hotkey-overlay-title="Плавающее окно" { toggle-window-floating; }
+    Mod+Shift+T         hotkey-overlay-title="Фокус: плавающие ↔ лента" { switch-focus-between-floating-and-tiling; }
+
+    // ─── Фокус (стрелки) и перемещение (+Shift) ───
+    Mod+Left            { focus-column-left; }
+    Mod+Right           { focus-column-right; }
+    Mod+Up              { focus-window-up; }
+    Mod+Down            { focus-window-down; }
+    Mod+Home            { focus-column-first; }
+    Mod+End             { focus-column-last; }
+
+    Mod+Shift+Left      { move-column-left; }
+    Mod+Shift+Right     { move-column-right; }
+    Mod+Shift+Up        { move-window-up; }
+    Mod+Shift+Down      { move-window-down; }
+    Mod+Shift+Home      { move-column-to-first; }
+    Mod+Shift+End       { move-column-to-last; }
+
+    // ─── Размер (+Alt) ───
+    Mod+Minus           hotkey-overlay-title="Уже" { set-column-width "-10%"; }
+    Mod+Equal           hotkey-overlay-title="Шире" { set-column-width "+10%"; }
+    Mod+Alt+Minus       hotkey-overlay-title="Ниже" { set-window-height "-10%"; }
+    Mod+Alt+Equal       hotkey-overlay-title="Выше" { set-window-height "+10%"; }
+    Mod+Alt+Left        { set-column-width "-10%"; }
+    Mod+Alt+Right       { set-column-width "+10%"; }
+    Mod+Alt+Up          { set-window-height "+10%"; }
+    Mod+Alt+Down        { set-window-height "-10%"; }
+
+    // ─── Рабочие столы ───
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+
+    Mod+Shift+1 { move-column-to-workspace 1; }
+    Mod+Shift+2 { move-column-to-workspace 2; }
+    Mod+Shift+3 { move-column-to-workspace 3; }
+    Mod+Shift+4 { move-column-to-workspace 4; }
+    Mod+Shift+5 { move-column-to-workspace 5; }
+    Mod+Shift+6 { move-column-to-workspace 6; }
+    Mod+Shift+7 { move-column-to-workspace 7; }
+    Mod+Shift+8 { move-column-to-workspace 8; }
+    Mod+Shift+9 { move-column-to-workspace 9; }
+
+    Mod+Tab             hotkey-overlay-title="Прошлый стол" { focus-workspace-previous; }
+    Mod+O               repeat=false hotkey-overlay-title="Overview" { toggle-overview; }
+
+    // Колёсико: Super — столы, Super+Shift — колонки.
+    Mod+WheelScrollDown         cooldown-ms=150 { focus-workspace-down; }
+    Mod+WheelScrollUp           cooldown-ms=150 { focus-workspace-up; }
+    Mod+Shift+WheelScrollDown   { focus-column-right; }
+    Mod+Shift+WheelScrollUp     { focus-column-left; }
+    Mod+WheelScrollRight        { focus-column-right; }
+    Mod+WheelScrollLeft         { focus-column-left; }
+
+    // ─── Мониторы (+Ctrl) ───
+    Mod+Ctrl+Left               { focus-monitor-left; }
+    Mod+Ctrl+Right              { focus-monitor-right; }
+    Mod+Ctrl+Up                 { focus-monitor-up; }
+    Mod+Ctrl+Down               { focus-monitor-down; }
+    Mod+Ctrl+Shift+Left         { move-column-to-monitor-left; }
+    Mod+Ctrl+Shift+Right        { move-column-to-monitor-right; }
+    Mod+Ctrl+Shift+Up           { move-column-to-monitor-up; }
+    Mod+Ctrl+Shift+Down         { move-column-to-monitor-down; }
+
+    // ─── Система и инструменты (+Alt) ───
+    Mod+Alt+L           hotkey-overlay-title="Блокировка" { spawn "noctalia" "msg" "session" "lock"; }
+    Mod+V               hotkey-overlay-title="История буфера" { spawn "golden-clipboard"; }
+    Mod+Alt+K           hotkey-overlay-title="Экранная клавиатура" { spawn-sh "pkill -x wvkbd-mobintl || exec wvkbd-mobintl"; }
+
+    // Демонстрация в Discord: в Discord выбрать «подвижную цель» niri,
+    // дальше переключать, что видно, не останавливая трансляцию.
+    Mod+Alt+W           hotkey-overlay-title="Показывать это окно" { set-dynamic-cast-window; }
+    Mod+Alt+M           hotkey-overlay-title="Показывать этот монитор" { set-dynamic-cast-monitor; }
+    Mod+Alt+C           hotkey-overlay-title="Скрыть трансляцию" { clear-dynamic-cast-target; }
+
+    // Аварийно: игра/программа перехватила клавиши — вернуть их Niri.
+    Mod+Shift+Escape    allow-inhibiting=false hotkey-overlay-title="Вернуть клавиши" { toggle-keyboard-shortcuts-inhibit; }
+
+    // Выход из Niri (с подтверждением).
+    Ctrl+Alt+Delete     { quit; }
+
+    // ─── Скриншоты ───
+    // Одна клавиша: меню «Захват» — Область (первая, т.е. Print → Enter) /
+    // Экран / Окно / Область → Satty / Текст со скрина (OCR).
+    Print               hotkey-overlay-title="Скриншот (меню захвата)" { spawn "golden-menu" "capture"; }
+
+    // ─── Звук, яркость, медиа (через Noctalia — с всплывающим индикатором) ───
+    XF86AudioRaiseVolume    allow-when-locked=true { spawn "noctalia" "msg" "volume-up"; }
+    XF86AudioLowerVolume    allow-when-locked=true { spawn "noctalia" "msg" "volume-down"; }
+    XF86AudioMute           allow-when-locked=true { spawn "noctalia" "msg" "volume-mute"; }
+    XF86AudioMicMute        allow-when-locked=true { spawn "noctalia" "msg" "mic-mute"; }
+    XF86AudioPlay           allow-when-locked=true { spawn "noctalia" "msg" "media" "toggle"; }
+    XF86AudioPause          allow-when-locked=true { spawn "noctalia" "msg" "media" "toggle"; }
+    XF86AudioNext           allow-when-locked=true { spawn "noctalia" "msg" "media" "next"; }
+    XF86AudioPrev           allow-when-locked=true { spawn "noctalia" "msg" "media" "previous"; }
+    XF86MonBrightnessUp     allow-when-locked=true { spawn "noctalia" "msg" "brightness-up"; }
+    XF86MonBrightnessDown   allow-when-locked=true { spawn "noctalia" "msg" "brightness-down"; }
+}

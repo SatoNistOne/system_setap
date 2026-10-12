@@ -1,0 +1,74 @@
+// Правила окон и слоёв. Порядок важен: общее сверху, частное ниже.
+
+// ─── Окна ───
+
+// Базовая политика — тайлить всё.
+window-rule {
+    open-floating false
+}
+
+// Без скруглений, плоско (Vantablack).
+window-rule {
+    geometry-corner-radius 0
+    clip-to-geometry true
+}
+
+// Firefox — картинка в картинке плавает.
+window-rule {
+    match app-id="firefox$" title="^Picture-in-Picture$"
+    open-floating true
+}
+
+// Steam — уведомления сбоку справа и не забирают фокус.
+window-rule {
+    match app-id="steam" title=r#"^notificationtoasts_\d+_desktop$"#
+    default-floating-position x=16 y=0 relative-to="right"
+    open-focused false
+}
+
+// mpv — переменная частота кадров для видео.
+window-rule {
+    match app-id="^mpv$"
+    variable-refresh-rate true
+}
+
+// Noctalia — окно настроек плавает.
+window-rule {
+    match app-id=r#"^dev\.noctalia\.Noctalia"#
+    open-floating true
+    default-column-width { fixed 1080; }
+    default-window-height { fixed 920; }
+}
+
+// Скринсейвер — на весь экран.
+window-rule {
+    match app-id=r#"^golden\.screensaver$"#
+    open-fullscreen true
+}
+
+// ─── Слои (бар, панели, меню, обои) ───
+
+// Блюр — под всплывающими панелями Noctalia и меню fuzzel.
+// Режим xray (по умолчанию): размываются обои, а не окна под панелью —
+// дёшево, считается один раз на кадр.
+layer-rule {
+    match namespace="^noctalia-(panel|attached-panel|notification|osd)$"
+    match namespace="^launcher$"
+    background-effect {
+        blur true
+    }
+}
+
+// Бар — сплошной, без блюра.
+layer-rule {
+    match namespace="^noctalia-bar"
+    background-effect {
+        blur false
+    }
+}
+
+// Живые обои видны и за столами в overview.
+layer-rule {
+    match namespace="wallpaperengine"
+    place-within-backdrop true
+}

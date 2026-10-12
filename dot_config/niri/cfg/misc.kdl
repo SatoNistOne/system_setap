@@ -1,0 +1,47 @@
+// Прочее: курсор, жесты, overview, Alt+Tab, блюр, окружение
+
+// Просить приложения не рисовать свои заголовки и кнопки ✕.
+prefer-no-csd
+
+cursor {
+    hide-when-typing
+}
+
+// Подсказку Niri не показывать при каждом входе (открывается Super+Shift+K).
+hotkey-overlay {
+    skip-at-startup
+}
+
+// Жесты тачпада встроены: 3 пальца вверх/вниз — столы, влево/вправо —
+// колонки, 4 пальца вверх — overview. Горячий угол выключен: в левом
+// верхнем углу кнопка меню в баре.
+gestures {
+    hot-corners {
+        off
+    }
+}
+
+overview {
+    // Vantablack; переключатель тем перекрывает в theme.kdl.
+    backdrop-color "#000000"
+}
+
+// Alt+Tab — последние окна. Блок binds заменяет стандартные сочетания:
+// Super+Tab у нас — прошлый стол. Alt+Shift+Tab не используем — Alt+Shift
+// переключает раскладку.
+recent-windows {
+    binds {
+        Alt+Tab { next-window; }
+    }
+}
+
+// Блюр: настройки по умолчанию; где он включён — в cfg/rules.kdl.
+// Анимации — тоже по умолчанию (своего блока нет). Шейдеры — подбор
+// вживую, см. tests.md.
+
+environment {
+    // Electron-приложения (VS Code, Vesktop, Obsidian) — нативно в Wayland.
+    ELECTRON_OZONE_PLATFORM_HINT "auto"
+    // Qt-приложения берут тему из qt6ct (шаблон темы).
+    QT_QPA_PLATFORMTHEME "qt6ct"
+}

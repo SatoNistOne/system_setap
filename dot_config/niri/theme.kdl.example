@@ -1,0 +1,10 @@
+// Пример theme.kdl (пишет golden-theme)
+layout {
+    border {
+        active-color "#bd93f9"
+        inactive-color "#44475a"
+    }
+}
+overview {
+    backdrop-color "#282a36"
+}

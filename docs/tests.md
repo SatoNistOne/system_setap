@@ -41,7 +41,7 @@
 - [ ] Строгий DoT работает дома и на мобильном интернете (порт 853 не режется)
 - [ ] Исключение DoT для конкретной сети в NetworkManager перекрывает глобальный строгий режим
 - [ ] Страница входа в публичный Wi-Fi: обход через `golden-dns`
-- [ ] DNS при включённом FlClash (TUN) — кто реально отвечает на запросы
+- [ ] DNS при включённом FlClashX (TUN) — кто реально отвечает на запросы
 
 ## Удалённый доступ
 
@@ -85,6 +85,22 @@
 - [ ] Шрифт темы Plymouth содержит кириллицу (если имя пользователя русское)
 - [ ] Переключение темы: все шаблоны (kitty, fuzzel, Noctalia, btop, VS Code, qt6ct, Satty) перекрашиваются на лету; GTK тёмная/светлая + иконки
 - [ ] Имена `.desktop`-файлов в `mimeapps.list`
+
+## Niri
+
+- [ ] (QEMU) `niri validate` проходит с `theme.kdl`, `outputs.kdl`, `local.kdl` и без них
+- [ ] (QEMU) Все сочетания из `decisions.md` §6а работают; нет конфликта `Alt+Tab` с переключением раскладки (`Alt+Shift`)
+- [ ] (QEMU) `golden-keybinds` (`Super+K`) показывает все сочетания из `binds.kdl`, Enter выполняет
+- [ ] Команды Noctalia в биндах: `noctalia msg session lock`, `volume-up/down/mute`, `mic-mute`, `media toggle/next/previous`, `brightness-up/down`
+- [ ] Имена слоёв (`niri msg layers`): панели Noctalia, бар, fuzzel (`launcher`), linux-wallpaperengine — блюр под панелями и меню, бар без блюра, обои видны в overview
+- [ ] Блюр с живыми обоями: как выглядит и нагрузка на ноуте
+- [ ] Шейдеры открытия/закрытия окон: подобрать из вики Niri
+- [ ] Фокус за мышью + прыжок курсора к окну: не раздражает (иначе убрать `warp-mouse-to-focus`)
+- [ ] Автозапуск: Noctalia; `Telegram -startintray` сворачивается в трей; FlClashX — имя пакета и бинарника, флаг запуска в трей
+- [ ] Фоновые службы стартуют от `graphical-session.target` при входе через `niri-session`
+- [ ] `Print` → меню «Захват»: все пункты работают; `Print` → `Enter` сразу даёт выделение области; «Область → Satty» открывает снимок в Satty
+- [ ] Демонстрация в Vesktop: «подвижная цель» + `Super+Alt+W/M/C`
+- [ ] Экранная клавиатура `Super+Alt+K` включается и выключается
 
 ## Прочее
 
