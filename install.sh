@@ -14,7 +14,8 @@ REPO_SLUG="${GOLDEN_REPO:-SatoNistOne/system_setap}"
 REPO_BRANCH="${GOLDEN_BRANCH:-main}"
 
 # --- Bootstrap: when started via curl there is no repo next to us ------------
-SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd || true)"
+SELF_DIR=""
+if SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)"; then :; fi
 if [ ! -f "$SELF_DIR/install/lib.sh" ]; then
     dest=/tmp/golden-setup
     echo "Downloading $REPO_SLUG ($REPO_BRANCH)..."

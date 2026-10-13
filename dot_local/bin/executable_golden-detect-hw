@@ -49,7 +49,7 @@ CPU_MODEL="$(awk -F': ' '/^model name/{print $2; exit}' /proc/cpuinfo | tr -s ' 
 # --- GPU: classes VGA [0300] / 3D [0302] / Display [0380], vendor by PCI ID --
 HAS_NVIDIA=false; HAS_AMD=false; HAS_INTEL=false; GPU_COUNT=0
 for dev in /sys/bus/pci/devices/*; do
-    [ -r "$dev/class" ] && [ -r "$dev/vendor" ] || continue
+    if [ ! -r "$dev/class" ] || [ ! -r "$dev/vendor" ]; then continue; fi
     case "$(cat "$dev/class")" in
         0x0300*|0x0302*|0x0380*) ;;
         *) continue ;;

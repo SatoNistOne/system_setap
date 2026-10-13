@@ -40,7 +40,7 @@ partition_path() {  # partition_path DISK NUMBER
     local d dev
     for _ in 1 2 3 4 5 6 7 8 9 10; do
         for d in /sys/class/block/"$(basename "$1")"/*/partition; do
-            [ -r "$d" ] && [ "$(cat "$d")" = "$2" ] || continue
+            if [ ! -r "$d" ] || [ "$(cat "$d")" != "$2" ]; then continue; fi
             dev="/dev/$(basename "$(dirname "$d")")"
             [ -b "$dev" ] && { printf '%s' "$dev"; return 0; }
         done
