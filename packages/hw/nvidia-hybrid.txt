@@ -1,0 +1,3 @@
+# Hybrid laptop with Nvidia dGPU (HAS_NVIDIA + IS_HYBRID_GPU): RTD3 (§5).
+
+envycontrol   # AUR

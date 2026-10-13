@@ -12,20 +12,41 @@
 
 ## Установка и загрузка
 
-- [ ] (QEMU) Флаги archinstall для установки без участия пользователя: `--config`, `--creds`, `--silent`
-- [ ] (QEMU) Повторный запуск всех скриптов дважды подряд — ничего не дублируется и не падает
-- [ ] (QEMU) Откуда Limine берёт параметры ядра: `/etc/default/limine` или `/etc/kernel/cmdline`
-- [ ] (QEMU) Порядок хуков initramfs: `systemd`, `sd-encrypt`, `plymouth` — экран пароля диска появляется
-- [ ] (QEMU) Автологин greetd (`initial_session`) после ввода пароля диска сразу открывает Niri
+Уже сверено без живой системы: флаги `--config`, `--creds`, `--silent`,
+`--skip-boot` есть в archinstall 4.5; сгенерированный JSON проходит его
+парсер (кроме `disk_config` — ему нужен смонтированный `/mnt`); разметка
+(GPT, FAT32, `luksFormat`, `mkfs.btrfs`) — на loop-устройстве; формат
+`snap-pac.ini` — по исходникам snap-pac.
+
+- [ ] (QEMU, OVMF) `install.sh` целиком: через `bash <(curl …)`, все вопросы gum, сводка, ввод имени диска с данными
+- [ ] (QEMU) `cryptsetup open` + монтирование всех сабвольюмов (в песочнице не проверить: нет device-mapper и btrfs)
+- [ ] (QEMU) archinstall в режиме `pre_mounted_config` с `--skip-boot`: ставит базу, пользователя с sudo, NetworkManager, multilib; fstab с `subvol=` для всех томов
+- [ ] (QEMU) Ключ CachyOS принимается (`pacman-key --recv-keys`), `[cachyos]` выше `[core]`, `cachyos-mirrorlist` подключён
+- [ ] (QEMU) `limine-update` собирает UKI для `linux-cachyos` и `linux-lts`; в `/proc/cmdline` — строка из `/etc/default/limine` (`rd.luks.name=…`, `rootflags=subvol=@`)
+- [ ] (QEMU) `default_entry: 2` в `limine.conf` выбирает `linux-cachyos`; запасное ядро тоже грузится
+- [ ] (QEMU) В UEFI появилась запись «Golden»; запасной путь `\EFI\BOOT\BOOTX64.EFI` тоже грузит Limine
+- [ ] (QEMU) На ESP нет лишнего (старые `vmlinuz-linux-lts`/`initramfs-*.img` от archinstall?), свободного места хватает с 10 снапшотами
+- [ ] (QEMU) Хуки initramfs `systemd`, `plymouth`, `sd-encrypt` — экран пароля диска в теме Golden, логотип из имени
+- [ ] (QEMU) Первая загрузка: вход в консоли, подсказка фазы 2 в `/etc/motd`; `umount -R /mnt` в конце установки не мешает gpg-agent
+- [ ] (QEMU) Фаза 2 `chezmoi init --apply`: `answers.toml` попадает в `chezmoi.toml` (`chezmoi data`), скрипты 00/05/10/20 идут по порядку, paru показывает PKGBUILD для review
+- [ ] (QEMU) После фазы 2 и перезагрузки: автологин greetd (`initial_session`) сразу открывает Niri; после выхода — tuigreet
+- [ ] (QEMU) Повторный `chezmoi apply` — ничего не дублируется и не падает; правка файла в `system/` — скрипт 05 перезапускается
 - [ ] (QEMU) Пустая связка ключей создаётся, git/SSH не спрашивают пароль связки
-- [ ] Имя пакета `nvidia-open-lts` для запасного ядра; запасное ядро грузится с Nvidia
+- [ ] Nvidia: `nvidia-open-lts` ставится вместе с `nvidia-utils` из `[cachyos]` — или срабатывает запасной путь `nvidia-open-dkms`; запасное ядро грузится с Nvidia
+- [ ] Nvidia-ПК: ранний KMS (`/etc/mkinitcpio.conf.d/nvidia.conf`) — экран пароля диска виден
 
 ## Снапшоты и откат
 
-- [ ] (QEMU) Формат `/etc/snap-pac.ini` (список «важных» пакетов) — сверить с `man snap-pac`
+- [ ] (QEMU) `limine-snapper-sync` видит снапшоты в `@.snapshots` (`ROOT_SNAPSHOTS_PATH`), в меню 10 последних; нет ли постоянного предупреждения «snapshot limit mismatch» (обычных + важных до 20)
 - [ ] (QEMU) Загрузка в снапшот из меню Limine + `limine-snapper-restore` (имя и поведение)
 - [ ] (QEMU) Таймлайн `/home` и `data`: снапшот раз в день, старше 7 удаляются
-- [ ] (QEMU) Вложенные тома (Steam, `~/.cache`) не попадают в снапшоты `/home`; `/var/lib/docker` — в снапшоты системы
+- [ ] (QEMU) Вложенные тома (Steam, `~/.cache`) не попадают в снапшоты `/home`; `/var/lib/docker` (`@docker`) — не попадает в снапшоты системы
+- [ ] (QEMU) Таймер `snapper-timeline` срабатывает раз в день (override `daily.conf`), snap-pac не снимает `home`
+
+## Своп и сон
+
+- [ ] (QEMU) zram: `zramctl` — min(RAM/2, 4 ГБ), zstd, приоритет выше своп-файла
+- [ ] Ноут: своп-файл = RAM, `resume=`/`resume_offset=` в cmdline, гибернация и возврат
 
 ## Диски
 
@@ -82,7 +103,7 @@
 - [ ] Меню команд: `Super+Space` и логотип в баре
 - [ ] Idle Noctalia умеет запускать свою команду (скринсейвер) — иначе swayidle
 - [ ] Скринсейвер: шрифт баннера, есть ли `ttfx` в AUR
-- [ ] Шрифт темы Plymouth содержит кириллицу (если имя пользователя русское)
+- [ ] Plymouth: логотип из имени (figlet → ImageMagick) читается; русское имя — баннер из логина; шрифт сообщений JetBrainsMono Nerd Font находится
 - [ ] Переключение темы: все шаблоны (kitty, fuzzel, Noctalia, btop, VS Code, qt6ct, Satty) перекрашиваются на лету; GTK тёмная/светлая + иконки
 - [ ] Имена `.desktop`-файлов в `mimeapps.list`
 

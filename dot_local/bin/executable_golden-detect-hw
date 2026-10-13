@@ -1,0 +1,94 @@
+#!/bin/bash
+# golden-detect-hw — hardware facts in KEY=value form (sourceable by bash).
+#
+# One detector for both phases:
+#   - install.sh runs it from the repo on the live ISO (prints to stdout);
+#   - after install chezmoi runs it and writes the result to
+#     ~/.local/state/chezmoi-hw-facts.env (run_once_before_00-detect-hw.sh).
+#
+# Usage: golden-detect-hw [--write]   (--write = save to the facts file)
+#
+# GPU vendor comes from the PCI vendor ID, not from the name: the old
+# 'amd|ati' regex matched "CorporATIon" and made every machine "AMD".
+# HAS_NVIDIA / HAS_AMD / HAS_INTEL describe GPUs; the CPU is CPU_VENDOR.
+set -euo pipefail
+
+FACTS_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/chezmoi-hw-facts.env"
+
+# --- Chassis -----------------------------------------------------------------
+# DMI chassis type works on the live ISO and inside a chroot, where
+# hostnamectl has nothing to ask. Battery presence is the fallback for
+# firmware that reports a wrong or generic type.
+# SMBIOS: 8 Portable, 9 Laptop, 10 Notebook, 11 Hand Held, 14 Sub Notebook,
+# 30 Tablet, 31 Convertible, 32 Detachable.
+chassis_type="$(cat /sys/class/dmi/id/chassis_type 2>/dev/null || echo 0)"
+case "$chassis_type" in
+    8|9|10|11|14|30|31|32) IS_LAPTOP=true ;;
+    *) IS_LAPTOP=false ;;
+esac
+HAS_BATTERY=false
+for bat in /sys/class/power_supply/BAT*; do
+    [ -e "$bat" ] && HAS_BATTERY=true && break
+done
+$HAS_BATTERY && IS_LAPTOP=true
+
+IS_VM=false
+if command -v systemd-detect-virt >/dev/null 2>&1 && systemd-detect-virt -q --vm; then
+    IS_VM=true
+fi
+
+# --- CPU ---------------------------------------------------------------------
+case "$(awk -F': ' '/^vendor_id/{print $2; exit}' /proc/cpuinfo)" in
+    AuthenticAMD) CPU_VENDOR=amd ;;
+    GenuineIntel) CPU_VENDOR=intel ;;
+    *)            CPU_VENDOR=unknown ;;
+esac
+# Model name feeds the ryzenadj table (data/ryzenadj.tsv).
+CPU_MODEL="$(awk -F': ' '/^model name/{print $2; exit}' /proc/cpuinfo | tr -s ' ')"
+
+# --- GPU: classes VGA [0300] / 3D [0302] / Display [0380], vendor by PCI ID --
+HAS_NVIDIA=false; HAS_AMD=false; HAS_INTEL=false; GPU_COUNT=0
+for dev in /sys/bus/pci/devices/*; do
+    [ -r "$dev/class" ] && [ -r "$dev/vendor" ] || continue
+    case "$(cat "$dev/class")" in
+        0x0300*|0x0302*|0x0380*) ;;
+        *) continue ;;
+    esac
+    GPU_COUNT=$((GPU_COUNT + 1))
+    case "$(cat "$dev/vendor")" in
+        0x10de) HAS_NVIDIA=true ;;
+        0x1002) HAS_AMD=true ;;
+        0x8086) HAS_INTEL=true ;;
+    esac
+done
+# Hybrid = more than one GPU device (AMD iGPU + AMD dGPU is hybrid too).
+if [ "$GPU_COUNT" -gt 1 ]; then IS_HYBRID_GPU=true; else IS_HYBRID_GPU=false; fi
+
+# --- Root: LUKS and system disk (meaningful only on the installed system) ----
+ROOT_SRC="$(findmnt -nvo SOURCE / 2>/dev/null || true)"
+HAS_LUKS=false
+ROOT_DISK=""
+if [ -n "$ROOT_SRC" ] && [ -b "$ROOT_SRC" ]; then
+    lsblk -slno TYPE "$ROOT_SRC" 2>/dev/null | grep -qx crypt && HAS_LUKS=true
+    ROOT_DISK="$(lsblk -slno NAME,TYPE "$ROOT_SRC" 2>/dev/null | awk '$2=="disk"{print $1; exit}')"
+fi
+
+facts="$(printf '%s\n' \
+    "IS_LAPTOP=$IS_LAPTOP" \
+    "HAS_BATTERY=$HAS_BATTERY" \
+    "IS_VM=$IS_VM" \
+    "CPU_VENDOR=$CPU_VENDOR" \
+    "CPU_MODEL=$(printf '%q' "$CPU_MODEL")" \
+    "HAS_NVIDIA=$HAS_NVIDIA" \
+    "HAS_AMD=$HAS_AMD" \
+    "HAS_INTEL=$HAS_INTEL" \
+    "IS_HYBRID_GPU=$IS_HYBRID_GPU" \
+    "HAS_LUKS=$HAS_LUKS" \
+    "ROOT_DISK=$ROOT_DISK")"
+
+if [ "${1:-}" = "--write" ]; then
+    mkdir -p "$(dirname "$FACTS_FILE")"
+    printf '%s\n' "$facts" > "$FACTS_FILE"
+    echo "Hardware facts written to $FACTS_FILE:"
+fi
+printf '%s\n' "$facts"

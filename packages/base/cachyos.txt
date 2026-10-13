@@ -1,0 +1,6 @@
+# From the [cachyos] repo — installed inside the chroot after the repo is added.
+
+linux-cachyos            # main kernel (BORE); linux-lts from Arch is the fallback
+limine
+limine-mkinitcpio-hook   # builds UKIs and limine.conf entries (limine-update)
+limine-snapper-sync      # boot into a snapshot from the Limine menu

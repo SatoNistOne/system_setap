@@ -1,0 +1,7 @@
+# GPU: AMD (HAS_AMD).
+
+mesa
+lib32-mesa
+vulkan-radeon
+lib32-vulkan-radeon
+# libva-mesa-driver: ⚠️ may already be part of mesa

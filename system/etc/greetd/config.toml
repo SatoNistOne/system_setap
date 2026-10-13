@@ -1,0 +1,14 @@
+# greetd (decisions §2): after the disk password Plymouth hands over to
+# greetd, which logs @@USER@@ straight into Niri once per boot
+# (initial_session). After logout or a Niri crash: tuigreet, where the
+# command can be changed (e.g. to a plain shell).
+[terminal]
+vt = 1
+
+[default_session]
+command = "tuigreet --time --remember --asterisks --cmd niri-session"
+user = "greeter"
+
+[initial_session]
+command = "niri-session"
+user = "@@USER@@"

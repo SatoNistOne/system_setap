@@ -1,0 +1,2 @@
+# label: Anki — flashcards
+anki   # ⚠️ extra or anki-bin (AUR)

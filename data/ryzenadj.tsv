@@ -1,0 +1,7 @@
+# ryzenadj limits for known CPUs (decisions §5). Matched against the CPU
+# "model name" from /proc/cpuinfo (substring). Values in mW, tctl in °C.
+# Same CPU → no question at install; other Ryzen laptop → asked; no row and
+# no answer → ryzenadj is not installed.
+#
+# model<TAB>stapm<TAB>fast<TAB>slow<TAB>tctl
+AMD Ryzen 9 7845HX	54000	65000	54000	95

@@ -1,0 +1,35 @@
+#!/bin/bash
+# System files of the base layer (decisions §1: system/… + run_onchange).
+# install.sh puts them in place at install time; this script re-installs
+# them whenever one changes in the repo — the hashes below change the script
+# text, so chezmoi runs it again.
+{{- $files := list
+    "etc/mkinitcpio.conf.d/golden.conf"
+    "etc/snapper/configs/root"
+    "etc/snapper/configs/home"
+    "etc/conf.d/snapper"
+    "etc/snap-pac.ini"
+    "etc/systemd/zram-generator.conf"
+    "etc/systemd/system/snapper-timeline.timer.d/daily.conf"
+    "usr/share/plymouth/themes/golden/golden.plymouth"
+    "usr/share/plymouth/themes/golden/golden.script" }}
+{{- range $files }}
+# {{ . }} {{ include (joinPath "system" .) | sha256sum }}
+{{- end }}
+set -euo pipefail
+
+SRC={{ .chezmoi.sourceDir | quote }}
+files=(
+{{- range $files }}
+    {{ . | quote }}
+{{- end }}
+)
+
+for f in "${files[@]}"; do
+    mode=644
+    case "$f" in etc/snapper/configs/*) mode=640 ;; esac
+    sudo install -Dm"$mode" "$SRC/system/$f" "/$f"
+done
+sudo systemctl daemon-reload
+# Initramfs hooks or the Plymouth theme may have changed: rebuild the UKIs.
+sudo limine-update

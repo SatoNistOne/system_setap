@@ -1,0 +1,5 @@
+#!/bin/bash
+# Every "chezmoi apply": refresh hardware facts (cheap, and hardware can
+# change). Other scripts source ~/.local/state/chezmoi-hw-facts.env.
+set -euo pipefail
+bash {{ joinPath .chezmoi.sourceDir "dot_local/bin/executable_golden-detect-hw" | quote }} --write

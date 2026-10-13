@@ -1,0 +1,61 @@
+#!/bin/bash
+# Phase 2 packages (decisions §1, §9): core + chosen optional + hardware lists.
+# Reruns when any list or the optional choice changes (hashes below).
+# Repo packages go through pacman without questions; AUR packages through
+# paru WITH the PKGBUILD review (same reason Chaotic-AUR was rejected).
+{{- range (glob (joinPath .chezmoi.sourceDir "packages/*/*.txt")) }}
+# {{ . | base }} {{ include . | sha256sum }}
+{{- end }}
+# core.txt {{ include "packages/core.txt" | sha256sum }}
+# flatpak.txt {{ include "packages/flatpak.txt" | sha256sum }}
+# optional: {{ .optional | join " " }}  ryzenadj: {{ .ryzenadj }}
+set -euo pipefail
+
+SRC={{ .chezmoi.sourceDir | quote }}
+# shellcheck source=/dev/null
+source "$HOME/.local/state/chezmoi-hw-facts.env"
+
+pkglist() { sed 's/#.*//' "$@" | tr -s ' \t' '\n' | sed '/^$/d'; }
+
+files=("$SRC/packages/core.txt")
+{{- range .optional }}
+files+=("$SRC/packages/optional/{{ . }}.txt")
+{{- end }}
+if $HAS_NVIDIA; then files+=("$SRC/packages/hw/nvidia.txt"); fi
+if $HAS_NVIDIA && $IS_HYBRID_GPU; then files+=("$SRC/packages/hw/nvidia-hybrid.txt"); fi
+if $HAS_AMD; then files+=("$SRC/packages/hw/amd-gpu.txt"); fi
+if $HAS_INTEL; then files+=("$SRC/packages/hw/intel-gpu.txt"); fi
+if $IS_LAPTOP; then files+=("$SRC/packages/hw/laptop.txt"); fi
+{{- if .ryzenadj }}
+files+=("$SRC/packages/hw/ryzenadj.txt")   # ryzenadj numbers were given
+{{- end }}
+
+# paru itself (bootstrap from the AUR, prebuilt binary package).
+if ! command -v paru >/dev/null 2>&1; then
+    tmp="$(mktemp -d)"
+    git clone --depth 1 https://aur.archlinux.org/paru-bin.git "$tmp/paru-bin"
+    (cd "$tmp/paru-bin" && makepkg -si --noconfirm)
+    rm -rf "$tmp"
+fi
+
+sudo pacman -Sy
+mapfile -t wanted < <(pkglist "${files[@]}" | sort -u)
+mapfile -t in_repos < <(pacman -Slq | sort -u)
+mapfile -t repo_pkgs < <(comm -12 <(printf '%s\n' "${wanted[@]}") <(printf '%s\n' "${in_repos[@]}"))
+mapfile -t aur_pkgs < <(comm -23 <(printf '%s\n' "${wanted[@]}") <(printf '%s\n' "${in_repos[@]}"))
+
+echo "Repo packages: ${#repo_pkgs[@]}, AUR packages: ${#aur_pkgs[@]}"
+if [ "${#repo_pkgs[@]}" -gt 0 ]; then
+    sudo pacman -S --needed --noconfirm "${repo_pkgs[@]}"
+fi
+if [ "${#aur_pkgs[@]}" -gt 0 ]; then
+    echo "AUR: ${aur_pkgs[*]}"
+    paru -S --needed "${aur_pkgs[@]}"
+fi
+
+# Flatpak apps (Flathub).
+mapfile -t flatpaks < <(pkglist "$SRC/packages/flatpak.txt")
+if [ "${#flatpaks[@]}" -gt 0 ]; then
+    sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+    sudo flatpak install -y --noninteractive flathub "${flatpaks[@]}"
+fi

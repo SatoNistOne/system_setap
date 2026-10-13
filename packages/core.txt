@@ -1,0 +1,141 @@
+# Core — installed on every machine in phase 2 (paru: repos + AUR).
+# Source: decisions.md §2–§9. "AUR" — from the AUR; ⚠️ — check the exact
+# package name on a live system (tests.md).
+
+# --- Session: Niri + Noctalia + login (§2, §6) ---
+niri
+xwayland-satellite
+noctalia-shell              # AUR ⚠️ name for Noctalia v5
+greetd
+greetd-tuigreet             # greeter after logout / Niri crash
+fuzzel
+xdg-desktop-portal-gnome    # screencast/screenshot portal for Niri
+xdg-desktop-portal-gtk      # file chooser
+gnome-keyring
+gcr-4                       # gcr-ssh-agent
+libsecret
+linux-wallpaperengine-git   # AUR ⚠️
+wl-clipboard
+cliphist
+wl-mirror
+wvkbd
+satty
+normcap                     # AUR ⚠️
+tesseract
+tesseract-data-eng
+tesseract-data-rus
+ttfx                        # AUR ⚠️ (else cargo install from omacom-io/ttfx)
+
+# --- Fonts (§6) ---
+noto-fonts
+noto-fonts-cjk
+noto-fonts-emoji
+noto-fonts-extra
+ttf-jetbrains-mono-nerd
+
+# --- Audio, Bluetooth, network, power (§5) ---
+pipewire
+pipewire-alsa
+pipewire-pulse
+pipewire-jack
+wireplumber
+easyeffects
+bluez
+bluez-utils
+power-profiles-daemon
+fwupd
+
+# --- Security (§3) ---
+nftables
+usbguard
+usbguard-notifier           # AUR ⚠️
+
+# --- Terminal and CLI (§7) ---
+kitty
+fish
+fastfetch
+atuin
+zoxide
+fzf
+bat
+eza
+yazi
+ripgrep
+fd
+jq
+lazygit
+git-delta
+btop
+ncdu
+procs
+xh
+sd
+glow
+tealdeer
+bandwhich
+vnstat
+plocate
+recoll
+rmlint
+sshm                        # AUR
+watchexec
+trash-cli
+smartmontools
+reflector
+xdg-user-dirs
+
+# --- Development (§8) ---
+uv
+rustup
+mold
+clang
+sccache
+cargo-audit                 # ⚠️
+cargo-expand                # ⚠️
+cargo-flamegraph            # ⚠️
+cargo-binstall
+gdb
+cmake
+mise                        # ⚠️ extra or mise-bin (AUR)
+visual-studio-code-bin      # AUR
+docker
+docker-compose
+docker-buildx
+lazydocker                  # ⚠️ extra or AUR
+dbeaver
+github-cli
+
+# --- Apps (§9 Core) ---
+firefox
+chromium
+torbrowser-launcher
+thunar
+thunar-volman
+thunar-archive-plugin
+tumbler
+gvfs
+file-roller
+imv
+mpv
+mpv-uosc                    # AUR ⚠️
+okular
+telegram-desktop
+vesktop-bin                 # AUR
+spotify-launcher
+steam
+heroic-games-launcher-bin   # AUR
+protonplus                  # AUR ⚠️
+gamemode
+lib32-gamemode
+mangohud
+lib32-mangohud
+gamescope
+scx-scheds                  # ⚠️ scx_lavd during games (CachyOS: scx-tools?)
+flatpak
+gparted
+rustdesk-bin                # AUR
+syncthing
+cups
+system-config-printer
+bitwarden
+obsidian

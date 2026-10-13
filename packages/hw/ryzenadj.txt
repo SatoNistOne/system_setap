@@ -1,0 +1,3 @@
+# Ryzen laptop with ryzenadj numbers (table data/ryzenadj.tsv or asked at install).
+
+ryzenadj   # AUR

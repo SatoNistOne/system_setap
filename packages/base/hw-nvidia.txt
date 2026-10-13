@@ -1,0 +1,7 @@
+# Nvidia kernel modules for both kernels — needed at first boot, so they are
+# installed by install.sh, not in phase 2. Userland: hw/nvidia.txt.
+
+linux-cachyos-nvidia-open   # precompiled for linux-cachyos
+nvidia-open-lts             # ⚠️ fallback kernel; on version conflict install.sh
+                            #    falls back to nvidia-open-dkms + linux-lts-headers
+nvidia-utils

@@ -1,0 +1,2 @@
+# label: FlClashX — proxy client (Mihomo)
+flclashx-bin   # AUR ⚠️ name

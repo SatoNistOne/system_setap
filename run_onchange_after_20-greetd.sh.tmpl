@@ -1,0 +1,17 @@
+#!/bin/bash
+# Autologin into Niri (decisions §2). Runs after packages (10), so niri and
+# greetd exist. Effective from the next boot: greetd takes tty1 instead of
+# the console login used for the first boot.
+# config.toml {{ include "system/etc/greetd/config.toml" | sha256sum }}
+set -euo pipefail
+
+SRC={{ .chezmoi.sourceDir | quote }}
+sed "s/@@USER@@/{{ .chezmoi.username }}/" "$SRC/system/etc/greetd/config.toml" \
+    | sudo install -Dm644 /dev/stdin /etc/greetd/config.toml
+sudo systemctl enable greetd.service
+
+# Phase 2 is done: remove the hint install.sh left in /etc/motd.
+if grep -q 'Golden setup — phase 2' /etc/motd 2>/dev/null; then
+    sudo truncate -s 0 /etc/motd
+fi
+echo "Autologin into Niri is on from the next boot."

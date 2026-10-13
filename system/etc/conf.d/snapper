@@ -1,0 +1,2 @@
+# Snapper configs to manage (golden).
+SNAPPER_CONFIGS="root home"

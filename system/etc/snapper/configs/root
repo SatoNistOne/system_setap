@@ -1,0 +1,20 @@
+# Snapper "root" (decisions §4): pre/post snapshots from snap-pac on every
+# pacman transaction, no timeline. 10 regular + 10 "important" (kernel,
+# drivers, base — list in /etc/snap-pac.ini). FREE_LIMIT: delete older
+# snapshots early when less than 20% of the filesystem is free.
+SUBVOLUME="/"
+FSTYPE="btrfs"
+QGROUP=""
+ALLOW_USERS=""
+ALLOW_GROUPS=""
+SYNC_ACL="no"
+BACKGROUND_COMPARISON="yes"
+NUMBER_CLEANUP="yes"
+NUMBER_MIN_AGE="0"
+NUMBER_LIMIT="10"
+NUMBER_LIMIT_IMPORTANT="10"
+FREE_LIMIT="0.2"
+TIMELINE_CREATE="no"
+TIMELINE_CLEANUP="no"
+EMPTY_PRE_POST_CLEANUP="yes"
+EMPTY_PRE_POST_MIN_AGE="1800"

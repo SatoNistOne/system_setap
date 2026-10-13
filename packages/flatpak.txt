@@ -1,0 +1,4 @@
+# Flatpak apps (Flathub) — installed in phase 2 on every machine.
+
+com.github.tchx84.Flatseal
+io.github.kolunmi.Bazaar   # ⚠️ app ID

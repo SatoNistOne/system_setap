@@ -1,0 +1,2 @@
+# label: OnlyOffice — office suite
+onlyoffice-bin   # AUR

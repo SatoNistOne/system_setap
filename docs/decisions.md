@@ -1,7 +1,8 @@
 # Golden setup — принятые решения
 
 Единственный источник правды по решениям (ревизия 2026-10-11/12, все пункты
-подтверждены заново; сессия по Niri — 2026-10-12, §6а). Только «что» и коротко «почему» — без кода и истории
+подтверждены заново; сессия по Niri — 2026-10-12, §6а; сессия по установщику —
+2026-10-12, §1, §2, §4). Только «что» и коротко «почему» — без кода и истории
 правок. Код — в репозитории; открытые вопросы и следующие шаги — `todo.md`;
 проверки на живой системе — `tests.md`.
 
@@ -17,18 +18,30 @@
   (ноут Colorfire: Ryzen 9 7845HX + RTX 4070 Laptop; ПК) и пары друзей.
 - **Два слоя.** Общий — публичный репозиторий chezmoi (код, конфиги,
   базовые пакеты); изменения доходят до друзей только по их `golden-update`.
-  Личный — ответы на вопросы при установке и мои пакеты, хранятся локально
-  (`~/.config/chezmoi/chezmoi.toml`), в репозиторий не попадают.
-- **Установка в две фазы.** (1) `install.sh` с live-ISO задаёт все вопросы,
-  archinstall работает под капотом без участия пользователя. (2) После первой
-  загрузки — одна команда `chezmoi init --apply <URL>`.
-- **Вопросы при установке:** логин, отображаемое имя (необязательно),
-  пароль пользователя, пароль шифрования диска, имя машины, часовой пояс,
-  optional-пакеты, роли дополнительных дисков, числа ryzenadj (если нужно).
+  Личный — ответы на вопросы при установке (`~/.config/golden/answers.toml`,
+  из него chezmoi собирает `~/.config/chezmoi/chezmoi.toml`) и локальные
+  файлы; в репозиторий не попадают. Отдельного списка «личных пакетов» нет:
+  мои приложения — обычные optional-пункты, их видит и выбирает любой.
+- **Установка в две фазы.** (1) `install.sh` с live-ISO (UEFI) задаёт все
+  вопросы, потом всё делает сам: разметка — своими командами, archinstall в
+  режиме `pre_mounted_config` ставит только базу, дальше `target-setup.sh` в
+  chroot. (2) Первая загрузка — пароль диска → вход в консоли → одна команда
+  `chezmoi init --apply SatoNistOne/system_setap` → перезагрузка → дальше
+  всегда автологин в Niri. Подсказка команды — в `/etc/motd` до фазы 2.
+- **Вопросы при установке** (интерфейс — gum, ставится на live-ISO сам):
+  логин, отображаемое имя (необязательно), пароль пользователя, шифровать ли
+  диск + пароль шифрования, имя машины, часовой пояс (угадывается по IP),
+  системный диск, optional-пакеты, числа ryzenadj (если нужно). Дополнительные
+  диски установщик не трогает — роли им назначает `golden-disks` после
+  установки. Диск с данными стирается только после ввода его имени.
 - **Раскладка репозитория:** конфиги в `$HOME` — `dot_*`-файлы chezmoi;
   системные файлы — `system/…` + `run_onchange`-скрипт с хэшем (поправил
   файл → при следующем apply переложится); генерируемое по железу пишет
-  скрипт. Списки пакетов — файлами в репозитории.
+  скрипт. Установщик — `install.sh` + `install/` (вне `$HOME`, в
+  `.chezmoiignore`). Списки пакетов — `packages/`: `base/` (ставит
+  установщик), `core.txt`, `optional/<id>.txt` (первая строка
+  `# label: …` — подпись в меню), `hw/<факт>.txt`, `flatpak.txt`. Таблица
+  ryzenadj — `data/ryzenadj.tsv`.
 - **Детект железа** — в `~/.local/state/chezmoi-hw-facts.env`: шасси, вендор
   CPU, GPU по PCI vendor ID, гибрид, LUKS, системный диск.
 - **Миграции** как в Omarchy: `migrations/<время>.sh`, каждая выполняется
@@ -42,13 +55,16 @@
 | Что | Решение | Почему |
 |---|---|---|
 | Дистрибутив | Arch Linux | Минимализм, AUR, обучение |
+| Репозиторий CachyOS | Только `[cachyos]` (выше `[core]`), без оптимизированных v3/v4 | Оттуда ядро, его модули Nvidia, limine-тулзы, scx; остальная система — ванильный Arch |
 | Ядро | `linux-cachyos` + запасное `linux-lts` из Arch | BORE и готовые модули Nvidia; запасное — из другого источника |
-| Nvidia под LTS | `nvidia-open-lts` ⚠️ имя пакета | |
-| Загрузчик | Limine + limine-snapper-sync | Загрузка в снапшот из меню |
+| Nvidia под LTS | `nvidia-open-lts`; если версия `nvidia-utils` из `[cachyos]` не сходится — установщик сам берёт `nvidia-open-dkms` + `linux-lts-headers` ⚠️ | |
+| Initramfs | systemd-вариант: `sd-encrypt` + `plymouth` (`/etc/mkinitcpio.conf.d/golden.conf`) | Нужен для разблокировки по TPM в v3 |
+| Загрузчик | Limine + limine-mkinitcpio-hook (UKI) + limine-snapper-sync | Загрузка в снапшот из меню; UKI — один файл на ядро, проще Secure Boot в v3 |
 | Композитор | Niri | Скроллируемый тайлинг, Wayland |
 | Оболочка | Noctalia v5 | Бар, уведомления, центр управления, lock, idle; обновлять осознанно (changelog, откат снапшотом) |
 | Свой шелл | Позже, отдельным проектом, на Quickshell | |
-| Вход | Plymouth (пароль диска) → автологин greetd (`initial_session` = `niri-session`); SDDM убран | Один пароль — пароль диска; `niri-session` поднимает `graphical-session.target` для фоновых служб |
+| Вход | Plymouth (пароль диска) → автологин greetd (`initial_session` = `niri-session`); после выхода из Niri или его падения — tuigreet; SDDM убран | Один пароль — пароль диска; `niri-session` поднимает `graphical-session.target` для фоновых служб |
+| Локаль | `en_US.UTF-8`, консольная раскладка `us` (пароль LUKS — латиницей) | Временно, см. `todo.md` |
 | Связка ключей | Пустая связка по умолчанию, как в Omarchy; PAM-правок для keyring нет | Защита — LUKS; при автологине пароля входа нет |
 | SSH-агент | gcr-ssh-agent | Пароль ключа хранится в связке |
 
@@ -82,14 +98,18 @@
 
 ## 4. Диски, снапшоты, сон
 
+- **Разметка системного диска:** EFI 2 ГБ (FAT32, `/boot`; UKI двух ядер +
+  снапшоты), остальное — LUKS2 (TRIM разрешён в заголовке LUKS) → btrfs.
 - **btrfs, сабвольюмы:** `@`, `@home`, `@log`, `@pkg`, `@.snapshots`,
-  `@docker` (`/var/lib/docker`, вне снапшотов); zstd, noatime,
-  discard=async. `/tmp` — tmpfs по умолчанию.
+  `@docker` (`/var/lib/docker`, вне снапшотов), **[ноут]** `@swap`; zstd,
+  noatime, discard=async. `/tmp` — tmpfs по умолчанию. Вложенные:
+  `/home/.snapshots`, `~/.cache`, `~/.local/share/Steam`.
 - **Снапшоты системы** (snap-pac на каждую операцию pacman): 10 обычных +
   10 «важных» (ядро, Nvidia, Mesa, systemd, glibc, Limine, mkinitcpio);
   `FREE_LIMIT=0.2`; в меню Limine — 10 последних.
-- **Снапшоты `/home`:** раз в день, хранить 7. Вложенные тома вне
-  снапшотов: `~/.local/share/Steam`, `~/.cache`.
+- **Снапшоты `/home`:** раз в день (таймер таймлайна переведён на daily),
+  хранить 7. Вложенные тома вне снапшотов: `~/.local/share/Steam`, `~/.cache`.
+  snap-pac снимает только `root`.
 - **Откат:** загрузиться в снапшот из Limine → `limine-snapper-restore` ⚠️.
   `snapper rollback` не используем.
 - **`golden-disks`** (при установке и из меню): все диски, кроме системного,
@@ -276,13 +296,16 @@ Flatseal + Bazaar, DBeaver, normcap, GParted, wvkbd, Satty, EasyEffects,
 RustDesk, Syncthing, CUPS, Bitwarden, Obsidian.
 
 **Optional (выбор при установке):** OnlyOffice, Thunderbird, qBittorrent,
-Anki, OBS Studio, FlClashX (вместо FlClash) ⚠️ пакет, Wireshark.
+Anki, OBS Studio, FlClashX (вместо FlClash) ⚠️ пакет, Wireshark, Exiled
+Exchange 2 (пункт появится, когда будет способ установки).
 
 **Пароли:** Bitwarden (core), хранилище — свой Vaultwarden на сервере
 (нужен HTTPS: домен + сертификат); до этого — облако Bitwarden.
 
-**[личное]:** Exiled Exchange 2 (AppImage через X11-обёртку), виджет
-лимитов Claude, числа ryzenadj.
+**Свои приложения** — обычные optional-пункты (выбор при установке у всех):
+Exiled Exchange 2 (AppImage через X11-обёртку; способ установки — `todo.md`).
+**[личное]** остаются только настройки, не пакеты: виджет лимитов Claude,
+числа ryzenadj.
 
 **Убрано:** SDDM, Podman, VSCodium, Neovim, KDE Connect, LocalSend,
 Cryptomator, KiCad, IntelliJ, PostgreSQL/MariaDB как службы,

@@ -1,0 +1,30 @@
+# /etc/default/limine — written by install.sh (target-setup.sh) from
+# install/files/default-limine.in. Read by limine-mkinitcpio-hook
+# (limine-update) and limine-snapper-sync; overrides their own configs.
+# Machine-specific (LUKS UUID, resume offset) — change it with care and
+# run "sudo limine-update" afterwards.
+
+ESP_PATH="/boot"
+
+# Root, LUKS and hibernation: generated at install time.
+KERNEL_CMDLINE[default]+=" @@CMDLINE@@"
+# Quiet boot for Plymouth (from Omarchy, MIT): initramfs_async=0 avoids a
+# race that drops Plymouth to a plain text LUKS prompt on newer kernels;
+# console=dumb avoids a rare hang at "Starting Switch Root".
+KERNEL_CMDLINE[default]+=" quiet splash loglevel=3 rd.udev.log_level=3 systemd.show_status=false vt.global_cursor_default=0 initramfs_async=0 systemd.tty.term.console=dumb"
+
+# UKI: kernel + initramfs + cmdline in one .efi (decisions: Secure Boot in v3).
+ENABLE_UKI=yes
+CUSTOM_UKI_NAME="golden"
+
+# Menu: CachyOS kernel first, then linux-lts, then snapshots.
+TARGET_OS_NAME="Golden"
+BOOT_ORDER="linux-cachyos, *, *fallback, Snapshots"
+FIND_BOOTLOADERS=yes
+
+# limine-snapper-sync: last 10 snapshots in the menu (decisions §4).
+# Our snapshots live in the top-level subvolume @.snapshots, not in the
+# default nested /@/.snapshots.
+MAX_SNAPSHOT_ENTRIES=10
+ROOT_SUBVOLUME_PATH="/@"
+ROOT_SNAPSHOTS_PATH="/@.snapshots"

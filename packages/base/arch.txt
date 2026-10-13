@@ -1,0 +1,22 @@
+# Base system — installed by archinstall from the Arch repos (live ISO stage).
+# Only what the first boot and phase 2 (chezmoi) need. Kernel (linux-lts),
+# microcode and NetworkManager are added by archinstall itself.
+
+base-devel        # makepkg/paru in phase 2
+git
+chezmoi
+linux-firmware
+btrfs-progs
+dosfstools
+cryptsetup
+efibootmgr
+snapper           # snap-pac goes last (base/late.txt), after snapper is configured
+zram-generator
+plymouth
+figlet            # banner for the Plymouth logo
+imagemagick       # renders the banner to logo.png
+ttf-jetbrains-mono-nerd
+sudo
+nano
+man-db
+pacman-contrib

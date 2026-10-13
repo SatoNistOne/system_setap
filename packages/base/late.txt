@@ -1,0 +1,4 @@
+# Installed last, after snapper configs exist: from here on every pacman
+# transaction takes a pre/post snapshot.
+
+snap-pac
