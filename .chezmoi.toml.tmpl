@@ -1,0 +1,15 @@
+{{- /*
+  chezmoi config, generated on "chezmoi init". Answers given in install.sh
+  live in ~/.config/golden/answers.toml (personal layer, decisions §1) and
+  become template data here. On a machine without install.sh everything
+  falls back to empty values.
+*/ -}}
+{{- $answersPath := joinPath .chezmoi.homeDir ".config/golden/answers.toml" -}}
+{{- $answers := dict -}}
+{{- if stat $answersPath -}}
+{{-   $answers = include $answersPath | fromToml -}}
+{{- end -}}
+[data]
+  displayName = {{ get $answers "displayName" | default "" | quote }}
+  optional = [{{ range $i, $o := (get $answers "optional" | default list) }}{{ if $i }}, {{ end }}{{ $o | quote }}{{ end }}]
+  ryzenadj = {{ get $answers "ryzenadj" | default "" | quote }}

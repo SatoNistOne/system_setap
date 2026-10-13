@@ -1,0 +1,13 @@
+# Not files for $HOME: installer, package lists, system files (installed by
+# run_onchange scripts via sudo), docs and repo metadata.
+README.md
+LICENSE
+install.sh
+install
+packages
+system
+data
+docs
+.github
+# Machine-local Niri files — only examples live in the repo.
+.config/niri/*.example
